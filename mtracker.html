@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CycleSync | Comprehensive Period Tracker</title>
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Raleway:wght@300;400;600&display=swap" rel="stylesheet">
+  
+  <!-- Animate.css for Animations -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  
+  <!-- Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  
+  <!-- Plotly CDN -->
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  
+  <style>
+    /* Base Reset & Typography */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Raleway', sans-serif;
+      background: #fff5f7;
+      color: #333;
+      line-height: 1.65;
+    }
+    a { text-decoration: none; color: inherit; }
+    
+    /* HEADER & NAVIGATION */
+    header {
+      background: linear-gradient(90deg, #f78ca0, #f9748f, #fd868c, #fe9a8b);
+      color: #fff;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+      padding: 1rem 0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .nav-container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+    }
+    nav ul {
+      list-style: none;
+      display: flex;
+    }
+    nav li { margin-left: 1.5rem; }
+    nav a {
+      font-size: 1rem;
+      font-weight: 700;
+      transition: color 0.3s ease;
+    }
+    nav a:hover { color: #ffe0e9; }
+    
+    /* HERO SECTION – Gradient Background */
+    .hero {
+      background: linear-gradient(135deg, #f78ca0, #fd868c);
+      height: 80vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      margin-top: 70px;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(255, 255, 255, 0.15);
+    }
+    .hero-text {
+      position: relative;
+      text-align: center;
+      color: #fff;
+      z-index: 1;
+    }
+    .hero-text h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.5rem;
+      animation: fadeInDown 1s;
+    }
+    .hero-text p {
+      font-size: 1.3rem;
+      animation: fadeInUp 1s;
+      margin-top: 20px;
+    }
+    
+    /* SECTION BASE STYLING */
+    section {
+      padding: 80px 20px;
+      max-width: 1200px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .section-title {
+      text-align: center;
+      margin-bottom: 30px;
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      color: #d81b60;
+      animation: fadeIn 1s;
+    }
+    
+    /* TRACKER FORM */
+    .form-group { margin-bottom: 1.2rem; }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #555;
+    }
+    input[type="date"],
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    .checkbox-group label {
+      font-weight: 400;
+      margin-right: 1rem;
+      display: inline-block;
+    }
+    button.btn {
+      background: #d81b60;
+      color: #fff;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: transform 0.3s ease;
+      display: block;
+      margin: 20px auto;
+    }
+    button.btn:hover { transform: scale(1.05); }
+    .summary {
+      background: #fce4ec;
+      color: #880e4f;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+      animation: fadeIn 1s;
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 700;
+    }
+    #calendarPlot { max-width: 450px; margin: 40px auto; }
+    
+    /* INFORMATION BLOCKS (MENSTRUAL HEALTH & TIPS) */
+    .info-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 40px;
+      margin-top: 40px;
+    }
+    .info-block {
+      flex: 1 1 45%;
+      background: #fff5f7;
+      border: 1px solid #f5c6d6;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(216, 27, 96, 0.1);
+      animation: fadeIn 1s;
+    }
+    .info-block h3 {
+      font-family: 'Playfair Display', serif;
+      color: #d81b60;
+      margin-bottom: 10px;
+    }
+    .info-block p {
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+    ul.custom-list {
+      list-style-type: disc;
+      margin-left: 20px;
+    }
+    
+    /* RESOURCE SECTION: ADDITIONAL MENSTRUAL INFORMATION */
+    .resource-section {
+      padding: 40px 20px;
+      max-width: 1200px;
+      margin: 40px auto;
+      background: #ffeef8;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(216, 27, 96, 0.1);
+      animation: fadeIn 1s;
+      text-align: center;
+    }
+    .resource-section h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      color: #d81b60;
+      margin-bottom: 20px;
+    }
+    .resource-section p,
+    .resource-section ul.custom-list {
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+    
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: #333;
+      color: #fff;
+      animation: fadeIn 1s;
+    }
+    
+    /* KEYFRAME ANIMATIONS */
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <!-- HEADER -->
+  <header class="animate__animated animate__fadeInDown">
+    <div class="nav-container">
+      <div class="nav-logo">CycleSync</div>
+      <nav>
+        <ul>
+          <li><a href="#home"><i class="fas fa-home"></i> Home</a></li>
+          <li><a href="#tracker"><i class="fas fa-calendar-check"></i> Tracker</a></li>
+          <li><a href="#info"><i class="fas fa-info-circle"></i> Menstrual Health</a></li>
+          <li><a href="#myths"><i class="fas fa-bullhorn"></i> Myth Busters</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  
+  <!-- HERO SECTION -->
+  <section class="hero animate__animated animate__zoomIn" id="home">
+    <div class="hero-text animate__animated animate__fadeInUp">
+      <h1>Welcome to CycleSync</h1>
+      <p>Your Comprehensive Period Tracker & Menstrual Health Hub</p>
+    </div>
+  </section>
+  
+  <!-- TRACKER FORM SECTION -->
+  <section id="tracker" class="animate__animated animate__fadeInUp">
+    <h2 class="section-title">Track Your Cycle</h2>
+    <form id="cycleForm">
+      <div class="form-group">
+        <label for="lastPeriod">Last Period Start Date</label>
+        <input type="date" id="lastPeriod" required>
+      </div>
+      <div class="form-group">
+        <label for="cycleLength">Cycle Length (days) <small>(21-35)</small></label>
+        <input type="number" id="cycleLength" min="21" max="35" value="28" required>
+      </div>
+      <div class="form-group">
+        <label for="periodLength">Period Length (days) <small>(2-7)</small></label>
+        <input type="number" id="periodLength" min="2" max="7" value="5" required>
+      </div>
+      <div class="form-group">
+        <label for="flowLevel">Flow Level</label>
+        <select id="flowLevel">
+          <option value="Light">Light</option>
+          <option value="Medium" selected>Medium</option>
+          <option value="Heavy">Heavy</option>
+        </select>
+      </div>
+      <div class="form-group checkbox-group">
+        <label>Symptoms:</label>
+        <label><input type="checkbox" name="symptoms" value="Cramps"> Cramps</label>
+        <label><input type="checkbox" name="symptoms" value="Headache"> Headache</label>
+        <label><input type="checkbox" name="symptoms" value="Fatigue"> Fatigue</label>
+        <label><input type="checkbox" name="symptoms" value="Mood Changes"> Mood Changes</label>
+        <label><input type="checkbox" name="symptoms" value="Bloating"> Bloating</label>
+        <label><input type="checkbox" name="symptoms" value="Back Pain"> Back Pain</label>
+      </div>
+      <button type="submit" class="btn">Save Cycle Info</button>
+    </form>
+    <!-- SUMMARY: Display only the relevant number with context -->
+    <div id="summary" class="summary" style="display:none;"></div>
+    <div id="calendarPlot"></div>
+  </section>
+  
+  <!-- MENSTRUAL HEALTH & TIPS SECTION -->
+  <section id="info" class="animate__animated animate__fadeInUp">
+    <h2 class="section-title">Menstrual Health & Tips</h2>
+    <div class="info-container">
+      <div class="info-block">
+        <h3>When to Worry?</h3>
+        <p>If you experience:</p>
+        <ul class="custom-list">
+          <li>Severe pain that disrupts your day</li>
+          <li>Soaking through a pad every hour</li>
+          <li>Consistent absence of periods (if not pregnant)</li>
+          <li>Dramatic changes in your cycle</li>
+        </ul>
+      </div>
+      <div class="info-block">
+        <h3>What’s Normal</h3>
+        <p>Most cycles range from 21 to 35 days, with periods lasting 2-7 days. Mild cramping and slight mood swings are typical.</p>
+        <ul class="custom-list">
+          <li>Minor bloating and tenderness</li>
+          <li>Subtle mood changes</li>
+          <li>Consistent cycle patterns over time</li>
+        </ul>
+      </div>
+    </div>
+    <div class="info-container">
+      <div class="info-block">
+        <h3>Benefits of Tracking</h3>
+        <p>By tracking your cycle, you can plan activities, spot symptoms early, and gain valuable insights into your overall health.</p>
+      </div>
+      <div class="info-block">
+        <h3>Self‑Care & Wellness</h3>
+        <p>Prioritize hydration, balanced nutrition, gentle exercise, and stress‑relief to support your menstrual health.</p>
+      </div>
+    </div>
+  </section>
+  
+  <!-- MENSTRUAL MYTH BUSTERS SECTION -->
+  <section id="myths" class="animate__animated animate__fadeInUp">
+    <h2 class="section-title">Menstruation Myth Busters</h2>
+    <div class="info-container">
+      <div class="info-block">
+        <h3>Myth:</h3>
+        <p>You cannot get pregnant during your period.</p>
+      </div>
+      <div class="info-block">
+        <h3>Fact:</h3>
+        <p>Pregnancy is possible—even during your period—especially with shorter or irregular cycles.</p>
+      </div>
+    </div>
+    <div class="info-container">
+      <div class="info-block">
+        <h3>Myth:</h3>
+        <p>Heavy bleeding always signals a problem.</p>
+      </div>
+      <div class="info-block">
+        <h3>Fact:</h3>
+        <p>Bleeding varies among individuals; extreme changes should be discussed with a professional.</p>
+      </div>
+    </div>
+    <div class="info-container">
+      <div class="info-block">
+        <h3>Myth:</h3>
+        <p>Pain during your period is unavoidable.</p>
+      </div>
+      <div class="info-block">
+        <h3>Fact:</h3>
+        <p>Effective self‑care and treatments can manage pain; severe persistent pain warrants evaluation.</p>
+      </div>
+    </div>
+  </section>
+  
+  <!-- RESOURCE SECTION: ADDITIONAL MENSTRUAL INFORMATION -->
+  <section class="resource-section animate__animated animate__fadeInUp">
+    <h2>Understanding Your Cycle</h2>
+    <p>Use our tracker to know exactly when your period is due. Record keeping is vital to detect changes and understand your body better.</p>
+    <ul class="custom-list">
+      <li>If your period has ended, the result shows the number of days since it finished.</li>
+      <li>If your period is upcoming, it shows the days remaining until it starts.</li>
+      <li>If it’s currently on, it shows the number of days since it began.</li>
+    </ul>
+    <p>This insight helps both you and your partner make informed health decisions.</p>
+  </section>
+  
+  <!-- FOOTER -->
+  <footer class="animate__animated animate__fadeIn">
+    <p>&copy; 2025 CycleSync. All Rights Reserved.</p>
+  </footer>
+  
+  <!-- JAVASCRIPT: Navigation, Cycle Tracker & Plotly Calendar -->
+  <script>
+    // Smooth scrolling for navigation links
+    document.querySelectorAll('nav a').forEach(anchor => {
+      anchor.addEventListener('click', function(e){
+        e.preventDefault();
+        document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+    
+    // Cycle Tracker Functionality
+    document.getElementById('cycleForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      
+      // Get form values
+      const lastPeriodValue = document.getElementById('lastPeriod').value;
+      const cycleLength = parseInt(document.getElementById('cycleLength').value);
+      const periodLength = parseInt(document.getElementById('periodLength').value);
+      const flowLevel = document.getElementById('flowLevel').value;
+      const symptomNodes = document.querySelectorAll('input[name="symptoms"]:checked');
+      const symptoms = Array.from(symptomNodes).map(node => node.value);
+      
+      if (!lastPeriodValue){
+        alert("Please enter a valid last period start date.");
+        return;
+      }
+      
+      const lastPeriodDate = new Date(lastPeriodValue);
+      let nextPeriodDate = new Date(lastPeriodDate);
+      nextPeriodDate.setDate(nextPeriodDate.getDate() + cycleLength);
+      
+      // Calculate period end date (lastPeriodDate + periodLength - 1)
+      const periodEndDate = new Date(lastPeriodDate);
+      periodEndDate.setDate(lastPeriodDate.getDate() + periodLength - 1);
+      
+      const today = new Date();
+      let result = 0;
+      // Determine state and compute result accordingly:
+      if (today >= lastPeriodDate && today <= periodEndDate) {
+        // Ongoing: days since it started
+        result = Math.floor((today - lastPeriodDate) / (1000 * 60 * 60 * 24));
+        result = result === 0 ? 0 : result;  // 0 if today is start day
+      } else if (today > periodEndDate && today < nextPeriodDate) {
+        // Finished: days since it finished
+        result = Math.floor((today - periodEndDate) / (1000 * 60 * 60 * 24));
+      } else if (today < lastPeriodDate) {
+        // Upcoming: days until it starts
+        result = Math.ceil((lastPeriodDate - today) / (1000 * 60 * 60 * 24));
+      } else if (today >= nextPeriodDate) {
+        // Period started in next cycle: days since it started
+        result = Math.floor((today - nextPeriodDate) / (1000 * 60 * 60 * 24));
+      }
+      
+      // Build summary HTML content with context: 
+      // We'll display the result number with a brief descriptor in a separate line above.
+      let descriptor = "";
+      if (today >= lastPeriodDate && today <= periodEndDate) {
+        descriptor = "days since the period started";
+      } else if (today > periodEndDate && today < nextPeriodDate) {
+        descriptor = "days since the period finished";
+      } else if (today < lastPeriodDate) {
+        descriptor = "days until the period starts";
+      } else if (today >= nextPeriodDate) {
+        descriptor = "days since the period started";
+      }
+      
+      const summaryHTML = `
+        <h3 class="animate__animated animate__fadeIn">Cycle Summary</h3>
+        <p><strong>${result}</strong></p>
+        <p style="font-size:1.25rem;">${descriptor}</p>
+      `;
+      document.getElementById('summary').innerHTML = summaryHTML;
+      document.getElementById('summary').style.display = 'block';
+      
+      // Create/update calendar view for the month of the last period date
+      createCalendarView(lastPeriodDate, cycleLength, periodLength);
+    });
+    
+    // Function: Create an interactive calendar view using Plotly
+    function createCalendarView(date, cycleLength, periodLength) {
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const firstDay = new Date(year, month, 1);
+      const firstWeekday = firstDay.getDay();
+      const lastDate = new Date(year, month + 1, 0).getDate();
+      
+      let x = [], y = [], texts = [], colors = [];
+      let periodDays = [];
+      for (let i = 0; i < periodLength; i++) {
+        let temp = new Date(date);
+        temp.setDate(temp.getDate() + i);
+        periodDays.push(temp.toDateString());
+      }
+      
+      let nextPeriod = new Date(date);
+      nextPeriod.setDate(nextPeriod.getDate() + cycleLength);
+      let fertileStart = new Date(nextPeriod);
+      fertileStart.setDate(fertileStart.getDate() - 14);
+      let fertileDays = [];
+      for (let i = 0; i < 5; i++){
+        let temp = new Date(fertileStart);
+        temp.setDate(temp.getDate() + i);
+        fertileDays.push(temp.toDateString());
+      }
+      
+      let dayCount = 1;
+      for (let i = 0; i < 6; i++){
+        for (let j = 0; j < 7; j++){
+          if (i === 0 && j < firstWeekday) continue;
+          if (dayCount > lastDate) break;
+          const current = new Date(year, month, dayCount);
+          x.push(j + 0.5);
+          y.push(6 - i);
+          texts.push(dayCount.toString());
+          const currentStr = current.toDateString();
+          if (periodDays.includes(currentStr)) {
+            colors.push('rgba(255, 182, 193, 0.8)');
+          } else if (fertileDays.includes(currentStr)) {
+            colors.push('rgba(176, 224, 230, 0.8)');
+          } else {
+            colors.push('white');
+          }
+          dayCount++;
+        }
+      }
+      
+      const trace = {
+        x: x,
+        y: y,
+        mode: 'markers+text',
+        marker: {
+          symbol: 'square',
+          size: 40,
+          color: colors,
+          line: { color: 'black', width: 1 }
+        },
+        text: texts,
+        textposition: 'middle center',
+        hoverinfo: 'none',
+        showlegend: false
+      };
+      
+      const data = [trace];
+      const layout = {
+        title: `Calendar: ${date.toLocaleString('default', { month: 'long' })} ${year}`,
+        xaxis: { visible: false, range: [-0.5, 6.5] },
+        yaxis: { visible: false, range: [0, 6] },
+        width: 400,
+        height: 400,
+        margin: { l: 20, r: 20, t: 50, b: 20 },
+        paper_bgcolor: 'rgba(0,0,0,0)', 
+        plot_bgcolor: 'rgba(0,0,0,0)'
+      };
+      
+      Plotly.newPlot('calendarPlot', data, layout);
+    }
+  </script>
+</body>
+</html>
