@@ -1,5 +1,3 @@
-Here's a cute README with pink hearts for the CycleSync period tracker:
-
 💕 Welcome to CycleSync! 💕
 
 CycleSync is your go-to period tracking app that helps you stay in sync with your menstrual cycle. 🌸 With its user-friendly interface and comprehensive features, you'll fall in love with tracking your periods! 😍
